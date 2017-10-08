@@ -34,26 +34,18 @@ void main(void)
 
     while (1)
     {
-        int reading;
-        int temp;
-        temp = (P1IN & BIT3);
-        if (temp == 0x0008) {
-            reading = 1;}
+        if (debouncing != lastButton) {
+            timeStart = time;}
+
+        if ((time - timeStart) > 15) {
+            button = debouncing;}
+
+        if (button == 1) {
+            P1OUT |= LED0;}
         else {
-            reading = 0;}
+            P1OUT &= ~LED0;}
 
-        if (reading != lastswitchState) {
-            lastDebounceTime = Mils_Count();}
-
-        if ((Mils_Count() - lastDebounceTime) > debounceDelay) {
-            switchState = reading;}
-
-        if (switchState == 1) {
-            P1OUT |= BIT0;}
-        else {
-            P1OUT &= ~BIT0;}
-
-        lastswitchState = reading;
+        lastButton = debouncing;
     }
 }
 
@@ -61,16 +53,6 @@ void main(void)
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void Timer_A (void) {
     time = time + 1;
-    if (debouncing == 1) //Only do debouncing when debouncing
-    {
-        if (time >= (timeStart + 2))    //Re-enable the button interrupts when 2 clock cycles have passed.
-        {
-            debouncing = 0;
-            if (INP)
-                P1OUT ^= LED0;                  //Toggle the LED.
-            P1IE |= BUTTON; //Only trigger the button action if the button is still down.
-        }
-    }
 
 }
 
@@ -78,9 +60,6 @@ __interrupt void Timer_A (void) {
 #pragma vector=PORT1_VECTOR         //Set the port 1 interrupt routine
 __interrupt void Port_1(void) {
     debouncing = 1;                 //Enable the debouncing variable.
-    timeStart = time;               //Store current 'time' in 'timeStart'
-    P1IE &= ~BUTTON;                //Disable button interrupts.
-
     P1IFG &= ~BUTTON;               //P1.3 IFG cleared
 }
 
