@@ -1,6 +1,6 @@
 #include <msp430.h>
 
-unsigned int timeStart, time, debouncing, button, lastButton = 0;
+unsigned int time = 0;
 #define BUTTON BIT3                 //Define "BUTTON" as bit 3.
 #define LED0 BIT0                   //Define "LED0" as bit 0.
 #define INP (P1IN & BUTTON)         //Define "INP" for checking if there is an input on pin 1.3.
@@ -30,37 +30,23 @@ void main(void)
 
     __enable_interrupt();           //Enable interrupts.
 
-    __bis_SR_register(GIE);         //Enter interrupt mode
-
-    while (1)
-    {
-        if (debouncing != lastButton) {
-            timeStart = time;}
-
-        if ((time - timeStart) > 2) {
-            button = debouncing;}
-
-        if (button == 1) {
-            P1OUT |= LED0;}
-        else {
-            P1OUT &= ~LED0;}
-
-        lastButton = debouncing;
-        debouncing = 0;
-    }
+    __bis_SR_register(LPM0 + GIE);  //Enter interrupt mode
 }
 
 //Interrupt vector service routine for Timer A0.
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void Timer_A (void) {
-    time = time + 1;
-
+    time++; //Increment time.
+    if (time == 5)
+        P1IE |= BUTTON; //If 5 clock cycles have passed since time was set to zero, re-enable button interrupts.
 }
 
 //Interrupt vector for button.
 #pragma vector=PORT1_VECTOR         //Set the port 1 interrupt routine
 __interrupt void Port_1(void) {
-    debouncing = 1;                 //Enable the debouncing variable.
-    P1IFG &= ~BUTTON;               //P1.3 IFG cleared
+    P1IE &= ~BUTTON;    //Disable button interrupt.
+    P1IFG &= ~BUTTON;   //Clear button interrupt flag.
+    time = 0;   //Set time to zero.
+    P1IES ^= BUTTON;    //Switch the interrupt edge.
 }
 
