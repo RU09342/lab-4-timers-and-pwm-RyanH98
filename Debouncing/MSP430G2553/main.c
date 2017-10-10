@@ -37,7 +37,7 @@ void main(void)
         if (debouncing != lastButton) {
             timeStart = time;}
 
-        if ((time - timeStart) > 15) {
+        if ((time - timeStart) > 2) {
             button = debouncing;}
 
         if (button == 1) {
@@ -46,6 +46,7 @@ void main(void)
             P1OUT &= ~LED0;}
 
         lastButton = debouncing;
+        debouncing = 0;
     }
 }
 
