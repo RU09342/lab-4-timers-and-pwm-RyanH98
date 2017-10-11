@@ -1,15 +1,29 @@
 # Software Debouncing
-In previously labs, we talked about how objects such as switches can cause some nasty effects since they are actually a mechanical system at heart. We talked about the simple hardware method of debouncing, but due to the many different design constraints, you may not be able to add or adjust hardware. Debouncing is also only one of many applications which would require the use of built in Timers to allow for other processes to take place.
+### Ryan Hare
 
-## Task
-You need to utilize the TIMER modules within the MSP430 processors to implement a debounced switch to control the state of an LED. You most likely will want to hook up your buttons on the development boards to an oscilloscope to see how much time it takes for the buttons to settle. The idea here is that your processor should be able to run other code, while relying on timers and interrupts to manage the debouncing in the background. You should not be using polling techniques for this assignment. Your code should also be able to detect 
+## Background
+As buttons are mechanical devices, they have slight mechanical flaws that make them, at times, somewhat unsuitable for use in digital circuits. These flaws can be seen in any button interrupt circuit that doesn't contain some form of debouncing. When the button is depressed, the contact plate can bounce, triggering multiple button signals and sometimes, triggering the button interrupt more than once.
 
-### Hints
-You need to take a look at how the P1IE and P1IES registers work and how to control them within an interrupt routine. Remember that the debouncing is not going to be the main process you are going to run by the end of the lab.
+These 'false alarm' triggers on the button interrupt are not ideal when the code requires only one trigger per button press. Generally, the best way to solve this is through hardware. By adding a capacitor in series with the button, the signal can be discharged over time, skipping over the very rapid 'bounce' signals and ignoring them. However, a hardware solution is not always an option when you have constraints in your design.
 
-## Extra Work
-### Low Power Modes
-Go into the datasheets or look online for information about the low power modes of your processors and using Energy Trace, see what the lowest power consumption you can achieve while still running your debouncing code. Take a note when your processor is not driving the LED (or unplug the header connecting the LED and check) but running the interrupt routine for your debouncing.
+In order to prevent these bounces through software, code to debounce the button is needed. The debouncing code uses a timer to create a small delay after a button interrupt where no more button interrupts are accepted. This essentially allows the main button input but prevents any 'bounce' inputs from triggering the interrupt in the code.
+## Devices
+There is code for the MSP430G2553, the MSP430FR6989, the MSP430FR5994, the MSP430FR2311, and the MSP430F5529.
+## Usage
+When the code is programmed onto the launchpad boards, the code will light the LED when the button is pressed down and turn the LED off when the button is depressed. This will show that the button interrupt is only triggering on the proper input signal edges and not on the bounces.
+### Other Uses
+This code is extremely useful in any situation where the button can not be debounced through hardware. A precise button signal is usually key to the successful and precise operation of a piece of code, so the debouncing is very important for ensuring this precision. Any code that uses a button and cannot debounce by hardware will benefit from debouncing.
+## Board-Specific Code Differences
+The code for the boards is mostly the same between them, however the pin assignments for the buttons changes by board.
 
-### Double the fun
-Can you expand your code to debounce two switches? Do you have to use two Timer peripherals to do this?
+* For the G2553, the button is on pin 1.3
+* For the F5529, the button is on pin 2.1
+* For the FR6989, the button is on pin 1.1
+* For the FR5994, the button is on pin 5.6
+* For the FR2311, the button is on pin 1.1
+
+Additionally, for this code to actually work on the FR5994 and F5529, another line of code was needed.
+
+PM5CTL0 &= ~LOCKLPM5;
+
+This code disables high impedance mode, which sets all pins to high impedance inputs. This allows the board to actually read the input of the button and toggle the LED.
