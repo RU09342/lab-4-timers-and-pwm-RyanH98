@@ -1,9 +1,9 @@
 ******************************************************************************
                   MSP430 Linker PC v17.9.0                     
 ******************************************************************************
->> Linked Tue Oct 10 21:04:15 2017
+>> Linked Tue Oct 10 21:03:58 2017
 
-OUTPUT FILE NAME:   <SoftwarePWM_G2553.out>
+OUTPUT FILE NAME:   <HardwarePWM_G2553.out>
 ENTRY POINT SYMBOL: "_c_int00_noinit_noargs"  address: 0000c07c
 
 

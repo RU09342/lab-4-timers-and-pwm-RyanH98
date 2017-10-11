@@ -22,8 +22,8 @@ void main(void)
 
     P1OUT &= ~LED0;                 //Set the initial LED condition to off.
 
-    CCTL0 = CCIE;                   //Enable interrupts for the first capture/compare register.
-    TACTL = TASSEL_2 + MC_2; //Set the Clock_A control to:
+    TA0CCTL0 = CCIE;                   //Enable interrupts for the first capture/compare register.
+    TA0CTL = TASSEL_2 + MC_2; //Set the Clock_A control to:
                                     //1. TASSEL_2 which selects SMCLK, the internal 1MHz clock.
                                     //2. MC_2 which selects the continuous counting mode.
                                     //3. ID_2 which sets an internal 4x clock divider.
