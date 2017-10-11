@@ -1,7 +1,7 @@
 ******************************************************************************
                   MSP430 Linker PC v16.9.4                     
 ******************************************************************************
->> Linked Wed Oct 11 13:12:04 2017
+>> Linked Wed Oct 11 13:32:20 2017
 
 OUTPUT FILE NAME:   <Software_PWM_FR2311.out>
 ENTRY POINT SYMBOL: "_c_int00_noinit_noargs_noexit"  address: 0000f1ae
