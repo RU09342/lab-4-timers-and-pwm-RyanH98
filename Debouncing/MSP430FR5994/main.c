@@ -1,23 +1,24 @@
 #include <msp430.h>
 
 unsigned int time, timeButton = 0;
-#define BUTTON BIT3                 //Define "BUTTON" as bit 3.
+#define BUTTON BIT6                 //Define "BUTTON" as bit 3.
 #define LED0 BIT0                   //Define "LED0" as bit 0.
 
 void main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
-    P1SEL &= (~LED0 & ~BUTTON);     //Select the I/O mode for P1.0 and P1.3
 
     P1DIR |= LED0;                  //Set P1.0 (LED) as an output
     P1OUT &= ~LED0;                 //Set the initial LED condition to off
 
-    P1DIR &= ~BUTTON;               //Set P1.3 (Button) as an input
-    P1REN |= BUTTON;                //Enable the pull resistor on P1.3
-    P1OUT |= BUTTON;                //Tell the pull resistor to pull up
-    P1IE |= BUTTON;                 //Enable interrupt on P1.3
-    P1IES |= BUTTON;                //Set the P1.3 interrupt to trigger on a high->low edge.
-    P1IFG &= ~BUTTON;               //Clear the interrupt flag register on P1.3
+    P5DIR &= ~BUTTON;               //Set P1.3 (Button) as an input
+    P5REN |= BUTTON;                //Enable the pull resistor on P1.3
+    P5OUT |= BUTTON;                //Tell the pull resistor to pull up
+    P5IE |= BUTTON;                 //Enable interrupt on P1.3
+    P5IES |= BUTTON;                //Set the P1.3 interrupt to trigger on a high->low edge.
+    P5IFG &= ~BUTTON;               //Clear the interrupt flag register on P1.3
+
+    PM5CTL0 &= ~LOCKLPM5;            //Disable high impedance mode.
 
     P1OUT &= ~LED0;                 //Set the initial LED condition to off.
 
@@ -37,17 +38,17 @@ void main(void)
 __interrupt void Timer_A (void) {
     time++; //Increment time.
     if (time == timeButton + 3)
-        P1IE |= BUTTON; //If 3 clock cycles have passed since timeButton was stored, re-enable button interrupts.
+        P5IE |= BUTTON; //If 3 clock cycles have passed since timeButton was stored, re-enable button interrupts.
 }
 
 //Interrupt vector for button.
-#pragma vector=PORT1_VECTOR         //Set the port 1 interrupt routine
-__interrupt void Port_1(void) {
+#pragma vector=PORT5_VECTOR         //Set the port 1 interrupt routine
+__interrupt void Port_5(void) {
     P1OUT ^= LED0; //Toggle LED0.
 
-    P1IE &= ~BUTTON;    //Disable button interrupt.
-    P1IFG &= ~BUTTON;   //Clear button interrupt flag.
+    P5IE &= ~BUTTON;    //Disable button interrupt.
+    P5IFG &= ~BUTTON;   //Clear button interrupt flag.
     timeButton = time;   //Store time in timeButton.
-    P1IES ^= BUTTON;    //Switch the interrupt edge.
+    P5IES ^= BUTTON;    //Switch the interrupt edge.
 }
 

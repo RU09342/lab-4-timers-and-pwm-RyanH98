@@ -1,23 +1,22 @@
 #include <msp430.h>
 
 unsigned int time, timeButton = 0;
-#define BUTTON BIT3                 //Define "BUTTON" as bit 3.
+#define BUTTON BIT1                 //Define "BUTTON" as bit 3.
 #define LED0 BIT0                   //Define "LED0" as bit 0.
 
 void main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
-    P1SEL &= (~LED0 & ~BUTTON);     //Select the I/O mode for P1.0 and P1.3
 
     P1DIR |= LED0;                  //Set P1.0 (LED) as an output
     P1OUT &= ~LED0;                 //Set the initial LED condition to off
 
-    P1DIR &= ~BUTTON;               //Set P1.3 (Button) as an input
-    P1REN |= BUTTON;                //Enable the pull resistor on P1.3
-    P1OUT |= BUTTON;                //Tell the pull resistor to pull up
-    P1IE |= BUTTON;                 //Enable interrupt on P1.3
-    P1IES |= BUTTON;                //Set the P1.3 interrupt to trigger on a high->low edge.
-    P1IFG &= ~BUTTON;               //Clear the interrupt flag register on P1.3
+    P2DIR &= ~BUTTON;               //Set P1.3 (Button) as an input
+    P2REN |= BUTTON;                //Enable the pull resistor on P1.3
+    P2OUT |= BUTTON;                //Tell the pull resistor to pull up
+    P2IE |= BUTTON;                 //Enable interrupt on P1.3
+    P2IES |= BUTTON;                //Set the P1.3 interrupt to trigger on a high->low edge.
+    P2IFG &= ~BUTTON;               //Clear the interrupt flag register on P1.3
 
     P1OUT &= ~LED0;                 //Set the initial LED condition to off.
 
@@ -41,13 +40,13 @@ __interrupt void Timer_A (void) {
 }
 
 //Interrupt vector for button.
-#pragma vector=PORT1_VECTOR         //Set the port 1 interrupt routine
-__interrupt void Port_1(void) {
+#pragma vector=PORT2_VECTOR         //Set the port 1 interrupt routine
+__interrupt void Port_2(void) {
     P1OUT ^= LED0; //Toggle LED0.
 
-    P1IE &= ~BUTTON;    //Disable button interrupt.
-    P1IFG &= ~BUTTON;   //Clear button interrupt flag.
+    P2IE &= ~BUTTON;    //Disable button interrupt.
+    P2IFG &= ~BUTTON;   //Clear button interrupt flag.
     timeButton = time;   //Store time in timeButton.
-    P1IES ^= BUTTON;    //Switch the interrupt edge.
+    P2IES ^= BUTTON;    //Switch the interrupt edge.
 }
 

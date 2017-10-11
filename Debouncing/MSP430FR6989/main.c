@@ -1,13 +1,12 @@
 #include <msp430.h>
 
 unsigned int time, timeButton = 0;
-#define BUTTON BIT3                 //Define "BUTTON" as bit 3.
+#define BUTTON BIT1                 //Define "BUTTON" as bit 3.
 #define LED0 BIT0                   //Define "LED0" as bit 0.
 
 void main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
-    P1SEL &= (~LED0 & ~BUTTON);     //Select the I/O mode for P1.0 and P1.3
 
     P1DIR |= LED0;                  //Set P1.0 (LED) as an output
     P1OUT &= ~LED0;                 //Set the initial LED condition to off
@@ -18,6 +17,8 @@ void main(void)
     P1IE |= BUTTON;                 //Enable interrupt on P1.3
     P1IES |= BUTTON;                //Set the P1.3 interrupt to trigger on a high->low edge.
     P1IFG &= ~BUTTON;               //Clear the interrupt flag register on P1.3
+
+    PM5CTL0 &= ~LOCKLPM5;            //Disable high impedance mode.
 
     P1OUT &= ~LED0;                 //Set the initial LED condition to off.
 
